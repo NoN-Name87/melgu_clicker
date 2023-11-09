@@ -1,6 +1,7 @@
 import person_parser as PP
 import sys
 from selenium import webdriver
+from selenium.webdriver.support.wait import WebDriverWait   
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
@@ -12,7 +13,7 @@ import os
 
 def fill_user(row, browser):
     sleep(1.5)
-    elem = browser.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[1]/button')
+    elem = WebDriverWait(browser, 10).until(lambda x: x.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[1]/button'))
     send_xpath = '/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[11]/div/button'
     elem.click()
     sleep(1)
@@ -31,7 +32,7 @@ def fill_user(row, browser):
     send_btn = browser.find_element(By.XPATH, send_xpath)
     send_btn.click()
 
-def fill_browser_fields(result_dict):
+def fill_browser_fields(result_dict, filename):
     try:
         options=Options()
         options.add_argument("-profile")
@@ -56,12 +57,14 @@ def fill_browser_fields(result_dict):
                 fill_user(row, browser)
             except Exception as ex:
                 print("TIMEOUT 5 sec")
-                sleep(5)
+                sleep(10)
                 browser.refresh()
+                sleep(10)
                 fill_user(row, browser)
             sleep(50)
             browser.refresh()
             PP.add_row(row)
+            PP.delete_first_row(filename)
         #/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[10]/div/button
         #/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[11]/div/button
     except Exception as ex:
@@ -69,6 +72,7 @@ def fill_browser_fields(result_dict):
     finally:
         exc_file = open("exception.txt", "w+")
         exc_file.write(f'ERROR, last ID is {row["ID"]}, {row["Имя"]}, {row["Фамилия"]}, {row["Отчество"]}')
+        os.rename('test/dump.xlsx', f'test/dump_{int(row["ID"])}.xlsx')
         exc_file.close()
         browser.close()
         browser.quit()
@@ -82,4 +86,4 @@ if __name__ == "__main__":
     ws = wb.active
     ws.append(person_headers)
     wb.save(os.path.join('test', 'dump.xlsx'))
-    fill_browser_fields(result_dict)
+    fill_browser_fields(result_dict, path)

@@ -22,4 +22,9 @@ def add_row(person):
     df_excel = pd.read_excel(path)
     result = pd.concat([df_excel, row], ignore_index=True)
     result.to_excel(path, index=False)
+
+def delete_first_row(filename):
+    df_excel = pd.read_excel(filename)
+    df_excel = df_excel.iloc[1:]
+    df_excel.to_excel(filename, index=False)
         
