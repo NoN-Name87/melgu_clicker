@@ -4,6 +4,7 @@ from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait   
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver import ActionChains
 from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
 from selenium.webdriver.firefox.options import Options
 from openpyxl import Workbook
@@ -13,7 +14,7 @@ import os
 
 def fill_user(row, browser):
     sleep(1.5)
-    elem = WebDriverWait(browser, 10).until(lambda x: x.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[1]/button'))
+    elem = WebDriverWait(browser, 300).until(lambda x: x.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[1]/button'))
     send_xpath = '/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[11]/div/button'
     elem.click()
     sleep(1)
@@ -31,7 +32,28 @@ def fill_user(row, browser):
     sleep(1)
     send_btn = browser.find_element(By.XPATH, send_xpath)
     send_btn.click()
-
+    print('CHECK')
+    try:
+        print('CHECK 1')
+        check_btn = browser.find_element(By.CSS_SELECTOR, '.pb-4 > button:nth-child(1)')
+        print('SWAP')
+        sleep(1)
+        check_btn.click()
+        sleep(1)
+        first_name = browser.find_element(By.CSS_SELECTOR, '#first_name')
+        first_name.clear()
+        sleep(1)
+        first_name.send_keys(row["Фамилия"])
+        last_name = browser.find_element(By.CSS_SELECTOR, '#last_name')
+        last_name.clear()
+        sleep(1)
+        last_name.send_keys(row["Имя"])
+        sleep(1)
+        send_btn.click()
+    except Exception as ex:
+        print('No Button')
+        
+    
 def fill_browser_fields(result_dict, filename):
     try:
         options=Options()
@@ -65,8 +87,6 @@ def fill_browser_fields(result_dict, filename):
             browser.refresh()
             PP.add_row(row)
             PP.delete_first_row(filename)
-        #/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[10]/div/button
-        #/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[11]/div/button
     except Exception as ex:
         print(ex)
     finally:
