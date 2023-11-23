@@ -13,42 +13,52 @@ from time import sleep
 import os
 
 def fill_user(row, browser):
-    sleep(1.5)
-    elem = WebDriverWait(browser, 300).until(lambda x: x.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[1]/button'))
-    send_xpath = '/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[11]/div/button'
-    elem.click()
-    sleep(1)
-    last_name = browser.find_element(By.ID, "last_name")            
-    last_name.send_keys(row["Фамилия"])
-    sleep(1)
-    first_name = browser.find_element(By.ID, "first_name")
-    first_name.send_keys(row["Имя"])
-    sleep(1)
-    middle_name = browser.find_element(By.ID, "middle_name")
-    middle_name.send_keys(row["Отчество"])
-    sleep(1)
-    email = browser.find_element(By.ID, "email")
-    email.send_keys(row["Почта"])
-    sleep(1)
-    send_btn = browser.find_element(By.XPATH, send_xpath)
-    send_btn.click()
-    print('CHECK')
+    bad_str = "nan"
+    while True:
+        try:
+            sleep(0.5)
+            elem = WebDriverWait(browser, 10).until(lambda x: x.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[1]/button'))
+            send_xpath = '/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[11]/div/button'
+            elem.click()
+            sleep(0.5)
+            last_name = browser.find_element(By.ID, "last_name")            
+            last_name.send_keys(row["Фамилия"])
+            sleep(0.5)
+            first_name = browser.find_element(By.ID, "first_name")
+            first_name.send_keys(row["Имя"])
+            sleep(0.5)
+            if type(row["Отчество"]) != float:
+                middle_name = browser.find_element(By.ID, "middle_name")
+                middle_name.send_keys(row["Отчество"])
+            sleep(0.5)
+            email = browser.find_element(By.ID, "email")
+            email.send_keys(row["Почта"])
+            sleep(0.5)
+            send_btn = browser.find_element(By.XPATH, send_xpath)
+            send_btn.click()
+            print('CHECK')
+            break
+        except Exception as ex:
+            print(ex)
+            print('WAIT 1 min')
+            sleep(60)
+            browser.refresh()
     try:
         print('CHECK 1')
         check_btn = browser.find_element(By.CSS_SELECTOR, '.pb-4 > button:nth-child(1)')
         print('SWAP')
-        sleep(1)
+        sleep(0.5)
         check_btn.click()
-        sleep(1)
+        sleep(0.5)
         first_name = browser.find_element(By.CSS_SELECTOR, '#first_name')
         first_name.clear()
-        sleep(1)
+        sleep(0.5)
         first_name.send_keys(row["Фамилия"])
         last_name = browser.find_element(By.CSS_SELECTOR, '#last_name')
         last_name.clear()
-        sleep(1)
+        sleep(0.5)
         last_name.send_keys(row["Имя"])
-        sleep(1)
+        sleep(0.5)
         send_btn.click()
     except Exception as ex:
         print('No Button')
@@ -64,25 +74,15 @@ def fill_browser_fields(result_dict, filename):
         sleep(2)
         send_xpath = str()
         row = dict()
-        # if(result_dict[0]["Статус"] == "Сотрудник"):
-        #     elem = browser.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[2]/button')
-        #     send_xpath = '/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[10]/div/button'
-        # else:
-        #     elem = browser.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/div[2]/div/div/div[2]/div/div/div[1]/button')
-        #     send_xpath = '/html/body/div[2]/div/div[2]/div[2]/div/div[2]/div/div[11]/div/button'
-        for row in result_dict:    
-            row["Фамилия"].replace(' ', '')
-            row["Имя"].replace(' ', '')
-            row["Отчество"].replace(' ', '')
-            row["Почта"].replace(' ', '')
-            try:
-                fill_user(row, browser)
+        for row in result_dict:
+            try:    
+                row["Фамилия"].replace(" ", "")
+                row["Имя"].replace(" ", "")
+                row["Почта"].replace(" ", "")
+                row["Отчество"].replace(" ", "")
             except Exception as ex:
-                print("TIMEOUT 5 sec")
-                sleep(10)
-                browser.refresh()
-                sleep(10)
-                fill_user(row, browser)
+                print("Empty block")
+            fill_user(row, browser)
             sleep(50)
             browser.refresh()
             PP.add_row(row)
